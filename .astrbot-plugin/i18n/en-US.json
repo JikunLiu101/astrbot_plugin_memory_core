@@ -1,0 +1,13 @@
+{
+  "metadata": {
+    "display_name": "memory-core",
+    "short_desc": "Local-first long-term memory: remembers, writes a diary, sees pictures, knows what it can do",
+    "desc": "Long-term memory that moves with the character (memory-core library): every message is an episode, consolidated into memories with sources; visibility per chat; a daily diary and self-image; fading, merging and hard forgetting; seeing pictures; a list of what it can do. A memory dashboard in the plugin views."
+  },
+  "pages": {
+    "memory": {
+      "title": "Memory",
+      "description": "Overview, memories, recall explained, graph"
+    }
+  }
+}

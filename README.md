@@ -1,6 +1,6 @@
-# 记忆核心 memory-core（AstrBot 插件）
+# 记忆核心（AstrBot 插件）
 
-**中文** | [English](https://github.com/JikunLiu101/memory-core/blob/main/adapters/astrbot/README.md)
+**中文** | [English](README.en.md)
 
 让角色拥有一份跟着它走的长期记忆。记忆存在一个目录（`soul/`）里，换框架、换模型都带得走。核心库和完整说明见 [memory-core](https://github.com/JikunLiu101/memory-core)。
 
@@ -66,14 +66,23 @@ AstrBot 4.24.2 起，在后台「插件 → memory-core → 视图 → 记忆面
 
 ## 安装
 
-```bash
-# 在 AstrBot 的 Python 环境里
-pip install "memory-core @ git+https://github.com/JikunLiu101/memory-core@v0.5.0"
-```
-
-把 `astrbot_plugin_memory_core/` 放进 AstrBot 的 `data/plugins/`，重启 AstrBot，然后至少在插件设置里填好“主人的用户 ID”。记忆目录默认是 `data/plugin_data/astrbot_plugin_memory_core/soul`，想放在会备份的地方就改“记忆目录”。
+在 AstrBot 后台的插件市场里搜“记忆核心”安装；或者“从链接安装”填 `https://github.com/JikunLiu101/astrbot_plugin_memory_core`。
+AstrBot 会按 `requirements.txt` 装好记忆库 [memory-core-lib](https://pypi.org/project/memory-core-lib/)（Python 3.11 及以上）。
+装好后至少在插件设置里填好“主人的用户 ID”。记忆目录默认是 `data/plugin_data/astrbot_plugin_memory_core/soul`，想放在会备份的地方就改“记忆目录”。
 
 “意思相近”的回忆需要嵌入模型，写在 `<记忆目录>/config.toml` 里（例如本机 Ollama 的 `bge-m3`），然后运行 `memory-core reindex <记忆目录>`。没有嵌入模型时，按全文和提到的人物回忆。
+
+## 支持的平台
+
+只用 AstrBot 的通用消息事件，不依赖哪个平台独有的功能。需要的是：私聊里认得出谁在说话、能收发图片。
+元数据里列的是满足这些的主流平台：Telegram、QQ（OneBot / aiocqhttp）、Discord、KOOK、飞书、钉钉、企业微信、Slack。
+**实际测过的只有 Telegram 和 AstrBot 自带的网页对话**，其他平台欢迎反馈。
+
+需要 AstrBot 4.24.2 及以上（插件视图）。
+
+## 借鉴
+
+设计思路来自 Generative Agents、mem0、Graphiti、Letta、dsh-memory，以及 AstrBot 插件 LivingMemory、self_learning（只借思路，没有用它们的代码），详见 [memory-core 的致谢](https://github.com/JikunLiu101/memory-core#acknowledgements)。
 
 ## 许可证
 

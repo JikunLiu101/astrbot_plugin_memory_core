@@ -1,6 +1,27 @@
 name: astrbot_plugin_memory_core
-display_name: memory-core
-desc: Local-first long-term memory for AstrBot, backed by memory-core (raw experiences as the source of truth, vectors as a rebuildable index, visibility scopes per chat).
+display_name: 记忆核心
+short_desc: 本地优先的长期记忆：记得聊过的事、写日记、看图、知道自己会什么
+desc: |
+  让角色拥有跟着它走的长期记忆（基于 memory-core 库）：每句话记成经历，定时整理成带来源的记忆；按群、私聊分可见范围；
+  每天写日记、更新自我认知；记忆会淡忘、合并，主人可以彻底遗忘；能看图；知道自己现在会什么。后台有记忆面板。
+  Local-first long-term memory for AstrBot, backed by the memory-core library.
 author: JikunLiu101
-version: 0.5.0
-repo: https://github.com/JikunLiu101/memory-core
+version: 0.6.0
+repo: https://github.com/JikunLiu101/astrbot_plugin_memory_core
+astrbot_version: ">=4.24.2"
+support_platforms:
+  - telegram
+  - aiocqhttp
+  - discord
+  - kook
+  - lark
+  - dingtalk
+  - wecom
+  - slack
+tags:
+  - 记忆
+  - 长期记忆
+  - 日记
+  - 人格
+  - memory
+social_link: https://github.com/JikunLiu101
