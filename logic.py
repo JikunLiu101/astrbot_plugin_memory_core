@@ -127,6 +127,22 @@ def speaker_note(sender_is_owner: bool, owner_name: str, sender_name: str, is_gr
     return f"<speaker>（系统确认）现在在{place}和你说话的是「{name}」，不是{owner_name}</speaker>"
 
 
+def pick_memories(hits: list, k: int, max_diaries: int = 1) -> list:
+    """The first `k` recall hits, with at most `max_diaries` diaries among them (negative: no limit). A diary is
+    long and matches many words, so two of them could fill the whole note; what she wrote in one also gets said
+    again whenever the topic comes near, even after she was told otherwise."""
+    out, diaries = [], 0
+    for h in hits:
+        if h.memory.kind == "diary":
+            if 0 <= max_diaries <= diaries:
+                continue
+            diaries += 1
+        out.append(h)
+        if len(out) >= k:
+            break
+    return out
+
+
 def memory_block(texts: list[str], max_chars: int = 1200) -> str:
     """The text injected before the model answers. Empty string when there is nothing to say."""
     lines, used = [], 0

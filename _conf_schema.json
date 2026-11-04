@@ -82,6 +82,12 @@
     "type": "int",
     "default": 1200
   },
+  "inject_max_diaries": {
+    "description": "Diaries among the injected memories, at most",
+    "type": "int",
+    "default": 1,
+    "hint": "A diary is long and matches many words: two can fill the whole note, and what the being once wrote gets repeated whenever the topic comes near. -1: no limit. memory_recall is not limited."
+  },
   "remember_check_related": {
     "description": "Check related memories before memory_remember",
     "type": "bool",

@@ -60,6 +60,7 @@ from .logic import (
     is_command,
     is_owner_private,
     memory_block,
+    pick_memories,
     memory_guide,
     owner_console,
     owner_spaces,
@@ -555,12 +556,13 @@ class MemoryCorePlugin(star.Star):
         if not query:
             return
         space, _, owner = self._where(event)
-        try:
-            hits = await asyncio.to_thread(self.core.recall, query, Audience(space, owner_present=owner),
-                                           int(self.cfg.get("inject_top_k", 6)))
+        k = int(self.cfg.get("inject_top_k", 6))
+        try:  # a few more than needed, so the room a skipped diary leaves goes to the next memories
+            hits = await asyncio.to_thread(self.core.recall, query, Audience(space, owner_present=owner), k + 4)
         except Exception as exc:
             logger.warning(f"[memory-core] recall failed: {exc}")
             return
+        hits = pick_memories(hits, k, int(self.cfg.get("inject_max_diaries", 1)))
         block = memory_block([h.memory.text for h in hits], int(self.cfg.get("inject_max_chars", 1200)))
         if block:
             req.extra_user_content_parts.append(TextPart(text=block))

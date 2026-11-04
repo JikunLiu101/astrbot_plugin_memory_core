@@ -56,6 +56,10 @@
     "inject_max_chars": {
       "description": "记忆最多多少字"
     },
+    "inject_max_diaries": {
+      "description": "自动想起的记忆里最多几篇日记",
+      "hint": "日记长、容易和很多话对上：两篇就能占满，她以前写下的想法也会在话题沾边时被反复说出来。-1：不限。她自己翻记忆（memory_recall）不受限。"
+    },
     "remember_check_related": {
       "description": "主动记下前先查相关记忆",
       "hint": "模型用 memory_remember 记东西时，先看看同一范围里相关的旧记忆（多一次模型调用）：可能更新或合并，而不是重复记一条。"

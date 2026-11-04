@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- **At most one diary among the memories she is reminded of** (`inject_max_diaries`, 1). Ten are recalled, the
+  first six kept. A diary is long and matches many words: two filled most of the note, and a line she once wrote
+  ("he told me not to, but I still think he shouldn't throw himself into it") came back nearly word for word
+  whenever the topic came near, even after the owner had corrected her. `memory_recall` is not limited.
+
 - **Missed diaries are caught up.** It only ever looked at yesterday, so after AstrBot had been off for two days
   the last day she talked was never written. Now the finished days of the last `diary_catch_up_days` (7) are
   written oldest first, each from that day's experiences and the day before's diary only, and the self-image is

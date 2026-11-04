@@ -118,3 +118,13 @@ def test_strip_transient_objects():
 def test_abilities_news_is_taken_out_of_the_history():
     history = [{"role": "user", "content": "在吗\n\n<abilities_news>\n- 刚有的本事：看图\n</abilities_news>"}]
     assert logic.strip_transient(history) == 1 and history[0]["content"] == "在吗"
+
+
+def test_pick_memories_keeps_at_most_one_diary():
+    from types import SimpleNamespace as N
+    hits = [N(memory=N(kind=k, text=t)) for k, t in
+            [("event", "a"), ("diary", "d1"), ("diary", "d2"), ("fact", "b"), ("preference", "c"), ("diary", "d3")]]
+    texts = lambda hs: [h.memory.text for h in hs]  # noqa: E731
+    assert texts(logic.pick_memories(hits, 4)) == ["a", "d1", "b", "c"]
+    assert texts(logic.pick_memories(hits, 3, max_diaries=0)) == ["a", "b", "c"]
+    assert texts(logic.pick_memories(hits, 3, max_diaries=-1)) == ["a", "d1", "d2"]
