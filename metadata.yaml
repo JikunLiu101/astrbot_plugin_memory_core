@@ -6,7 +6,7 @@ desc: |
   每天写日记、更新自我认知；记忆会淡忘、合并，主人可以彻底遗忘；能看图；知道自己现在会什么。后台有记忆面板。
   Local-first long-term memory for AstrBot, backed by the memory-core library.
 author: JikunLiu101
-version: 0.6.0
+version: 0.7.0
 repo: https://github.com/JikunLiu101/astrbot_plugin_memory_core
 astrbot_version: ">=4.24.2"
 support_platforms:

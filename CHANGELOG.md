@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.7.0 (2026-11-04)
 
 - **At most one diary among the memories she is reminded of** (`inject_max_diaries`, 1). Ten are recalled, the
   first six kept. A diary is long and matches many words: two filled most of the note, and a line she once wrote
@@ -13,7 +13,7 @@
   rewritten once, after the last, so nothing that came later gets in. A late one is written as such ("现在是 X，
   你在补写 Y 那天的日记：程序被关了"), marked in `diary/<date>.md`, and she keeps a thought in the owner's private
   chat that she caught up on it. A day she was not running at all is no longer written up as "nobody came".
-- Needs memory-core-lib with `mark_awake`, `missed_days` and `why_late` (the next release after 0.6.0).
+- Needs memory-core-lib 0.7.0 (`mark_awake`, `missed_days`, `why_late`).
 
 ## 0.6.0 (2026-11-01)
 
