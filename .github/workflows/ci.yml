@@ -18,5 +18,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install "memory-core-lib>=0.6.0" pytest
+      - run: python -m pip install "memory-core-lib>=0.7.0" pytest
       - run: python -m pytest -q
