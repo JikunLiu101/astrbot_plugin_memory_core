@@ -68,6 +68,7 @@ def test_memory_guide_states_the_daily_schedule():
     assert "凌晨5点" in guide and "老板能看" in guide and "整理一次记忆" in guide
     assert "日记" not in logic.memory_guide(diary=False, tidy=False).split("memory_remember")[1]
     assert "每天凌晨4点左右还会整理" in logic.memory_guide(diary=False)
+    assert "漏掉的日记，再醒来时会一天一天补写" in guide
 
 
 def test_owner_console_only_owner_private_on_listed_platform():

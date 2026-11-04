@@ -37,7 +37,16 @@ from memory_core.consolidate import due_spaces, remember
 from memory_core.metabolism import fade, merge_duplicates
 from memory_core.now import describe, mood_due, snapshot, update_mood
 from memory_core.proposals import proposals, propose, resolve
-from memory_core.reflect import current_day, day_window, diary_for, unwritten, update_self_image, write_diary
+from memory_core.reflect import (
+    current_day,
+    day_window,
+    diary_for,
+    mark_awake,
+    missed_days,
+    update_self_image,
+    why_late,
+    write_diary,
+)
 from memory_core.vision import Seen, caption_block, look, outline
 
 from .logic import (
@@ -727,9 +736,10 @@ class MemoryCorePlugin(star.Star):
         return identity_block([(tags[n], self.core.identity(n)) for n in names], guide="")
 
     async def reflect_day(self, day, *, force: bool = False, extend: bool = False, note: str = "",
-                          self_image: bool = True) -> tuple[str | None, str | None]:
+                          self_image: bool = True, late_on=None, why: str = "") -> tuple[str | None, str | None]:
         """Write the diary of `day` (`extend`: continue what is written with what happened since), then refresh
-        the self-image (once per day, unless the diary was just rewritten). Returns (diary text, self-image)."""
+        the self-image (once per day, unless the diary was just rewritten). `late_on`: the day she is catching
+        up on it, and `why` she did not write it then. Returns (diary text, self-image)."""
         provider_id = self._provider_id()
         if not provider_id:
             raise RuntimeError("no chat provider available for the diary")
@@ -746,7 +756,8 @@ class MemoryCorePlugin(star.Star):
                                      persona=self._persona("self", "self-image", "voice"),
                                      owner_spaces=owner_spaces(spaces, self.owner_ids),
                                      write_quiet_days=bool(self.cfg.get("diary_quiet_days", True)), force=force,
-                                     owner_title=self.owner_title, extend=extend, note=note)
+                                     owner_title=self.owner_title, extend=extend, note=note,
+                                     late_on=late_on, why_late=why)
                 if result.memory is None:
                     return None, None
                 wrote = not result.skipped
@@ -761,6 +772,8 @@ class MemoryCorePlugin(star.Star):
         if diary or image:
             how = ("continued" if extend and had and not force else "rewritten" if had else "written") if diary \
                 else "unchanged"
+            if diary and late_on is not None:
+                how += f" late (on {late_on})"
             logger.info(f"[memory-core] diary for {day} {how}; self-image {'updated' if image else 'unchanged'}")
         return diary, image
 
@@ -779,19 +792,53 @@ class MemoryCorePlugin(star.Star):
         logger.info(f"[memory-core] tidy: {summary}")
         return summary
 
-    def _day_unfinished(self, day) -> bool:
-        """No diary yet, things happened after she wrote it herself, or the self-image is not refreshed."""
-        if diary_for(self.core, day) is None:
-            return True
-        if self.core.store.get_meta(SELF_IMAGE_DAY) != day.isoformat():
-            return True
-        start, end = day_window(day, int(self.cfg.get("diary_hour", 4)))
-        return bool(unwritten(self.core, day, start, end))
+    async def catch_up_diaries(self, now) -> list:
+        """The diaries of the finished days not written yet (or not caught up with the day), oldest first, so
+        each is written knowing only that day and the one before; the self-image is refreshed once, after the
+        last. Days written late are written as such, and she remembers having caught up. Returns the days."""
+        hour = int(self.cfg.get("diary_hour", 4))
+        today = current_day(now, hour)
+        yesterday = today - timedelta(days=1)
+        days = await asyncio.to_thread(missed_days, self.core, today, hour,
+                                       max_days=int(self.cfg.get("diary_catch_up_days", 7)),
+                                       write_quiet_days=bool(self.cfg.get("diary_quiet_days", True)))
+        if not days:
+            # the diary is there but refreshing the self-image after it failed: try that again
+            if self.core.store.get_meta(SELF_IMAGE_DAY) != yesterday.isoformat() and \
+                    await asyncio.to_thread(diary_for, self.core, yesterday) is not None:
+                await self.reflect_day(yesterday, extend=True)
+            return []
+        for i, day in enumerate(days):
+            why = await asyncio.to_thread(why_late, self.core, day, hour, now)
+            diary, _ = await self.reflect_day(day, extend=True, self_image=i == len(days) - 1,
+                                              late_on=today if why else None, why=why or "")
+            if diary and why:
+                await asyncio.to_thread(self._caught_up, day, why)
+        return days
+
+    def _caught_up(self, day, why: str) -> None:
+        """A thought in the owner's latest private chat: she knows she wrote this one late, and why."""
+        latest = None
+        for space in self._owner_spaces():
+            last = self.core.episodes(space, limit=1, newest_first=True)
+            if last and (latest is None or last[0].occurred_at > latest[1]):
+                latest = (space, last[0].occurred_at)
+        if latest is None:
+            return
+        note = f"我补写了 {day.month}月{day.day}日 的日记（{why.replace('你', '我')}）"
+        self.core.record(Episode(kind="thought", content=note, space=latest[0], source="memory-core",
+                                 actor=SELF_ALIAS, meta={"diary_late": day.isoformat()}))
+        logger.info(f"[memory-core] she noticed: {note}")
 
     async def _diary_loop(self) -> None:
-        """Once a day: the diary of the finished day, the self-image, then memory metabolism."""
+        """Every ten minutes: note that she is awake; once a day the diaries of the finished days (catching up on
+        missed ones), the self-image, then memory metabolism."""
         hour = int(self.cfg.get("diary_hour", 4))
         while True:
+            try:
+                await asyncio.to_thread(mark_awake, self.core, timeutil.now(), hour)
+            except Exception as exc:  # noqa: BLE001
+                logger.warning(f"[memory-core] could not note that she is awake: {exc}")
             try:
                 if self.cfg.get("inner_state", True):
                     try:
@@ -801,8 +848,8 @@ class MemoryCorePlugin(star.Star):
                 yesterday = current_day(timeutil.now(), hour) - timedelta(days=1)  # a finished day
                 if self.core.store.get_meta(SELF_IMAGE_DAY) is None:  # before this was tracked
                     self.core.store.set_meta(SELF_IMAGE_DAY, yesterday.isoformat())
-                if self.cfg.get("diary_enabled", True) and await asyncio.to_thread(self._day_unfinished, yesterday):
-                    await self.reflect_day(yesterday, extend=True)
+                if self.cfg.get("diary_enabled", True):
+                    await self.catch_up_diaries(timeutil.now())
                 if self.cfg.get("tidy_enabled", True) and \
                         self.core.store.get_meta("tidy:last") != yesterday.isoformat():
                     await self.tidy()

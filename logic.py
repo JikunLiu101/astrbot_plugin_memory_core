@@ -69,7 +69,8 @@ def memory_guide(owner_title: str = "主人", diary_hour: int = 4, *, diary: boo
     if diary:
         daily.append(
             f"- 每天凌晨{diary_hour}点左右，你会回顾前一天写一篇日记（凌晨{diary_hour}点前熬的夜算前一天；"
-            f"日记只有{owner_title}能看），再根据最近一周的日记更新 <self_image>，也就是“我眼中的自己”\n")
+            f"日记只有{owner_title}能看），再根据最近一周的日记更新 <self_image>，也就是“我眼中的自己”。"
+            f"你没开着的那几天漏掉的日记，再醒来时会一天一天补写\n")
         if diary_now:
             daily.append("- 白天想写也可以自己写（diary_write）：写过的会接着往下写，凌晨再把之后的事补上\n")
     if tidy:

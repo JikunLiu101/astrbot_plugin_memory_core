@@ -86,6 +86,10 @@
     "diary_quiet_days": {
       "description": "什么都没发生的日子也写"
     },
+    "diary_catch_up_days": {
+      "description": "漏写的日记最多往前补几天",
+      "hint": "AstrBot 关着（或写日记出错）时漏掉的日记，之后从最早那天起一天一天补：每篇只看那一天的事，她知道自己是在补写。没开着的日子不当成“没人来找”的冷清日子来写。"
+    },
     "diary_tool_per_day": {
       "description": "角色每天能自己写几次日记",
       "hint": "diary_write 工具，只在主人私聊里能用。之后的事第二天凌晨补上。0：只写每天自动的那篇。"
